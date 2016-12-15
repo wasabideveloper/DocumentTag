@@ -22,11 +22,7 @@ fileAnalyzer.analyze((tags) => {
 			})
 			.sort((a,b) => (a.tag == b.tag) ? 0 : ((a.tag < b.tag) ? -1 : 1))
 	};
-	console.log(context);
 	let html = TemplateRenderer(context);
-	/*if (!FS.existsSync(outFile)) {
-	    // Do something
-	}*/
 	FS.writeFile(outFile, html, { encoding: 'utf8', flag: 'w' }, function(error) {
 		if(error) {
 			log(error);

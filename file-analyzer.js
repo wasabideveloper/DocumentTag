@@ -11,6 +11,14 @@ module.exports = class FileAnalyzer {
 		this.tagLibrary = {};
 		this.startDirectory = startDirectory;
 		this.log = log;
+
+		this.fileTags = [
+			{ symbol: '@', regex: /@(\w|\d)*/ig },
+			{ symbol: '+', regex: /\+(\w|\d)*/ig }
+		];
+
+		this.excludeFileStartCharacters = ['.', '_', '~', '#', '@'];
+		this.excludeFiles = ['node_modules', 'bin', 'src', 'dist', 'lib'];
 	}
 
 	regexMatch(pattern, text) {
@@ -33,11 +41,7 @@ module.exports = class FileAnalyzer {
 
 	findFileNameTags(fileName) {
 		let tags = [];
-		const fileTags = [
-			{ symbol: '@', regex: /@(\w|\d)*/ig },
-			{ symbol: '+', regex: /\+(\w|\d)*/ig }
-		];
-		fileTags.forEach((tag) => {
+		this.fileTags.forEach((tag) => {
 			if(fileName.indexOf(tag.symbol) >= 0) {
 				let foundTags = this.regexMatch(tag.regex, fileName).map(
 					(match) => match.replace(tag.symbol,'')
@@ -63,17 +67,21 @@ module.exports = class FileAnalyzer {
 						if (error) {
 							log(error);
 						} else {
-							if (meta.isDirectory()) {
-								this.analyzeDirectory(
-									absoluteFilePath,
-									parentTags.concat([file.toLowerCase()]),
-									log,
-									barrier
-								);
-							} else if (meta.isFile()) {
-								let fileTags = parentTags.concat(this.findFileNameTags(file));
-								if (fileTags.length > 0) {
-									this.tagFile(absoluteFilePath, fileTags);
+							if(this.excludeFileStartCharacters.indexOf(file[0]) >= 0 || this.excludeFiles.indexOf(file) >= 0) {
+								barrier.finishedTask(absoluteFilePath);
+							} else {
+								if (meta.isDirectory()) {
+									this.analyzeDirectory(
+										absoluteFilePath,
+										parentTags.concat([file.toLowerCase()]),
+										log,
+										barrier
+									);
+								} else if (meta.isFile()) {
+									let fileTags = parentTags.concat(this.findFileNameTags(file));
+									if (fileTags.length > 0) {
+										this.tagFile(absoluteFilePath, fileTags);
+									}
 								}
 								barrier.finishedTask(absoluteFilePath);
 							}
