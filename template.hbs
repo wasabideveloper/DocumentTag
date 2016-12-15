@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>File analyzer</title>
+		<style>
+			body {
+				font-family: Arial;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Tags</h1>
+		<ul>
+			{{#each tags}}
+				<li><a href="#{{tag}}">{{tag}}</a></li>
+			{{/each}}
+		</ul>
+
+		{{#each tags}}
+		<h2 id="{{tag}}">{{tag}}</h2>
+		<ul>
+			{{#each files}}
+				<li><a href="file://{{this}}">{{this}}</a></li>
+			{{/each}}
+		</ul>
+		{{/each}}
+	</body>
+</html>
